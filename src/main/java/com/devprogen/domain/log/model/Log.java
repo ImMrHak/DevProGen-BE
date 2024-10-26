@@ -11,6 +11,7 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Log {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,6 +1,7 @@
 package com.devprogen.domain.user.service;
 
 import com.devprogen.domain.user.model.User;
+import com.devprogen.domain.user.projection.UserSignInProjection;
 import com.devprogen.infrastructure.persistence.JpaUserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -40,5 +41,17 @@ public class UserDomainService {
 
     public User loadUserByUsername(String username) {
         return jpaUserRepository.findByUserName(username);
+    }
+
+    public UserSignInProjection findProjectedUserByUserName(String username){
+        return jpaUserRepository.findProjectedUserByUserName(username);
+    }
+
+    public UserSignInProjection findProjectedUserByEmail(String email){
+        return jpaUserRepository.findProjectedUserByEmail(email);
+    }
+
+    public Boolean existsByUserNameOrEmail(String userName, String email){
+        return jpaUserRepository.existsByUserNameOrEmail(userName, email);
     }
 }

@@ -1,5 +1,6 @@
 package com.devprogen.domain.user.model;
 
+import com.devprogen.domain.project.model.Project;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,6 +19,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,8 +48,8 @@ public class User implements UserDetails {
     @JsonIgnore
     private boolean isDeleted = false;
 
-    //@OneToMany(mappedBy = "user") @JsonIgnore
-    //private List<Project> projects;
+    @OneToMany(mappedBy = "user") @JsonIgnore
+    private List<Project> projects;
 
     @Override @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {

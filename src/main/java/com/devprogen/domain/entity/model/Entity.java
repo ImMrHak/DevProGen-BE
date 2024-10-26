@@ -15,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(exclude = "attributes")
+@Builder
 public class Entity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
