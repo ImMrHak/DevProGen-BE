@@ -15,8 +15,14 @@ public class Utility {
     @Value("${spring.application.name}")
     public String applicationName;
 
+    @Value("${spring.application.logoURL}")
+    public String applicationLogoUrl;
+
     @Value("${spring.application.supportMail}")
     public String applicationSupportEmail;
+
+    @Value("${spring.application.domainURL}")
+    public String applicationDomainUrl;
 
     @Autowired
     private JavaMailSender javaMailSender;

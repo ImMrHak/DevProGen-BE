@@ -2,15 +2,17 @@ package com.devprogen.domain.user.service;
 
 import com.devprogen.domain.user.model.User;
 import com.devprogen.domain.user.projection.UserSignInProjection;
+import com.devprogen.domain.user.projection.UserSignUpProjection;
 import com.devprogen.infrastructure.persistence.JpaUserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class UserDomainService {
+public class UserDomainService implements UserDetailsService {
     private final JpaUserRepository jpaUserRepository;
 
     // Fetch all attributes
@@ -43,12 +45,16 @@ public class UserDomainService {
         return jpaUserRepository.findByUserName(username);
     }
 
-    public UserSignInProjection findProjectedUserByUserName(String username){
-        return jpaUserRepository.findProjectedUserByUserName(username);
+    public UserSignInProjection findProjectedUserByUserNameToSignIn(String username){
+        return jpaUserRepository.findProjectedUserByUserNameToSignIn(username);
     }
 
-    public UserSignInProjection findProjectedUserByEmail(String email){
-        return jpaUserRepository.findProjectedUserByEmail(email);
+    public UserSignInProjection findProjectedUserByEmailToSignIn(String email){
+        return jpaUserRepository.findProjectedUserByEmailToSignIn(email);
+    }
+
+    public UserSignUpProjection findByUserNameOrEmailToSignUp(String userName, String email){
+        return jpaUserRepository.findByUserNameOrEmailToSignUp(userName, email);
     }
 
     public Boolean existsByUserNameOrEmail(String userName, String email){

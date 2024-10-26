@@ -1,13 +1,19 @@
 package com.devprogen.infrastructure.config;
 
-import com.devprogen.application.user.UserServiceImpl;
+import com.devprogen.domain.user.service.UserDomainService;
 import com.devprogen.infrastructure.config.JWT.JwtRequestFilter;
+import com.devprogen.infrastructure.config.oAuth2.CustomOAuth2SuccessHandler;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -24,23 +30,29 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
+@AllArgsConstructor
 public class SecurityConfig implements WebMvcConfigurer {
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtRequestFilter jwtRequestFilter) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF since this is a stateless REST API
-                .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                        .requestMatchers("/**", "/api/v1/devprogen/**", "/api/v1/auth/**").permitAll() // Allow access to auth endpoints
-                        .anyRequest().authenticated()) // All other requests require authentication
-                .oauth2Login(Customizer.withDefaults()) // OAuth2 login if needed (or you can remove this if not using)
-                .sessionManagement(sessionManagement -> sessionManagement
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless session management
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(Customizer.withDefaults())) // Enable JWT resource server
-                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class); // Add JWT filter
+    private final UserDomainService userDomainService;
 
-        // Custom filter to redirect to OAuth2 login directly
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomOAuth2SuccessHandler customOAuth2SuccessHandler) throws Exception {
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+                        .requestMatchers("/**").permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/user/userInfo").authenticated()
+                        .anyRequest().authenticated())
+                .authenticationProvider(authenticationProvider())
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(customOAuth2SuccessHandler))
+                .sessionManagement(sessionManagement -> sessionManagement
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        http.addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
+
         http.exceptionHandling(exceptions -> exceptions
                 .authenticationEntryPoint((_HttpServletRequest, response, _AuthenticationException) -> {
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
@@ -59,13 +71,10 @@ public class SecurityConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public AuthenticationManager authManager(HttpSecurity http, UserServiceImpl userDetailsService) throws Exception {
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder =
                 http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder
-                .userDetailsService(userDetailsService)
-                .passwordEncoder(passwordEncoder());
-
+        authenticationManagerBuilder.authenticationProvider(authenticationProvider());
         return authenticationManagerBuilder.build();
     }
 
@@ -75,7 +84,20 @@ public class SecurityConfig implements WebMvcConfigurer {
     }
 
     @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        daoAuthenticationProvider.setUserDetailsService(userDomainService);
+        return daoAuthenticationProvider;
+    }
+
+    @Bean
     public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> oAuth2AccessTokenResponseClient() {
         return new DefaultAuthorizationCodeTokenResponseClient();
+    }
+
+    @Bean
+    public JwtRequestFilter jwtAuthFilter() {
+        return new JwtRequestFilter();
     }
 }

@@ -5,10 +5,10 @@ import com.devprogen.application.user.record.request.UserSignUpDTO;
 import com.devprogen.domain.enumerations.AccountTypeEnum;
 import com.devprogen.domain.user.model.User;
 import com.devprogen.domain.user.projection.UserSignInProjection;
+import com.devprogen.domain.user.projection.UserSignUpProjection;
 import com.devprogen.domain.user.service.UserDomainService;
 import com.devprogen.infrastructure.config.JWT.JwtUtil;
 import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,9 +19,8 @@ import java.util.Map;
 
 @Service
 @AllArgsConstructor
-public class UserServiceImpl implements UserService, UserDetailsService {
+public class UserServiceImpl implements UserService {
     private final UserDomainService userDomainService;
-    //private final UserMapper userMapper;
     private final JwtUtil jwtUtils;
     private final PasswordEncoder passwordEncoder;
 
@@ -29,8 +28,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public Object signInUser(UserSignInDTO userSignInDTO) {
         UserSignInProjection dbUser = (userSignInDTO.usernameOrEmail().contains("@") ?
-                userDomainService.findProjectedUserByEmail(userSignInDTO.usernameOrEmail()) :
-                userDomainService.findProjectedUserByUserName(userSignInDTO.usernameOrEmail())
+                userDomainService.findProjectedUserByEmailToSignIn(userSignInDTO.usernameOrEmail()) :
+                userDomainService.findProjectedUserByUserNameToSignIn(userSignInDTO.usernameOrEmail())
         );
 
         if(dbUser == null){
@@ -77,6 +76,39 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         data.put("token", jwtUtils.generateToken(newUser.getUsername(), newUser.getAuthorities()));
         data.put("rid", newUser.getAuthorities().toString().charAt(6));
         return data;
+    }
+
+    @Override
+    public UserSignUpProjection signUpoAuth2User(User user){
+        if (userDomainService.existsByUserNameOrEmail(user.getUsername(), user.getEmail())) {
+            return null;
+        }
+
+        User newUser = User.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .password(passwordEncoder.encode(user.getPassword()))
+                .email(user.getEmail())
+                .userName(user.getUsername())
+                .accountType(user.getAccountType())
+                .isAdmin(false)
+                .isDeleted(false)
+                .creationDate(new Date(System.currentTimeMillis()))
+                .build();
+
+        userDomainService.save(newUser);
+
+        return userDomainService.findByUserNameOrEmailToSignUp(newUser.getUsername(), newUser.getEmail());
+    }
+
+    @Override
+    public Boolean existsByUserNameOrEmail(String userName, String email){
+        return userDomainService.existsByUserNameOrEmail(userName, email);
+    }
+
+    @Override
+    public UserSignUpProjection findByUserNameOrEmailToSignUp(String userName, String email){
+        return userDomainService.findByUserNameOrEmailToSignUp(userName, email);
     }
 
     @Override
