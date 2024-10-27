@@ -33,4 +33,11 @@ public class ProjectDomainService {
         jpaProjectRepository.deleteById(id);
     }
 
+    public Long countByUser_UserNameAndIsDeleted(String userName, boolean deleted) {
+        return jpaProjectRepository.countByUser_UserNameAndIsDeleted(userName, deleted);
+    }
+
+    public Project findAllByUser_UserNameAndIsDeleted(String userName, boolean deleted){
+        return jpaProjectRepository.findAllByUser_UserNameAndIsDeleted(userName, deleted);
+    }
 }

@@ -64,14 +64,14 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
         }
 
         if(dbUser.getIsDeleted()){
-            getRedirectStrategy().sendRedirect(request, response, "http://localhost:4200/DevProGen/SignIn");
+            getRedirectStrategy().sendRedirect(request, response, utility.applicationDomainUrl + "/DevProGen/SignIn");
         }
 
         String generatedToken = jwtUtils.generateToken(dbUser.getUserName(), dbUser.getAuthorities());
 
         // Add the JWT token in the response header
         response.addHeader("Authorization", "Bearer " + generatedToken);
-        getRedirectStrategy().sendRedirect(request, response, "http://localhost:4200/DevProGen/oauth2/redirect?token=" + generatedToken + "&rid=" + dbUser.getAuthorities().toString().charAt(6));
+        getRedirectStrategy().sendRedirect(request, response, utility.applicationDomainUrl + "/DevProGen/oauth2/redirect?token=" + generatedToken + "&rid=" + dbUser.getAuthorities().toString().charAt(6));
     }
 
     public String buildWelcomeEmailHTML(User newUser) {
@@ -110,7 +110,7 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
                 "<p><strong>Password:</strong> <code>" + newUser.getPassword() + "</code></p>" +
                 "</div>" +
                 "<p>For ease, you can also use your Google, Facebook or GitHub account for login. Remember to save your credentials for future reference.</p>" +
-                "<a style='color: white;' href='" + utility.applicationDomainUrl + "' class='cta-button'>Start Generating Your Application</a>" +
+                "<a style='color: white;' href='" + utility.applicationDomainUrl + "/DevProGen/SignIn' class='cta-button'>Start Generating Your Application</a>" +
                 "<p>If you have any questions or need assistance, please reach out to our <a href='mailto:" + utility.applicationSupportEmail + "'>support team</a>.</p>" +
                 "<div class='footer'>" +
                 "<p>Best regards,</p>" +

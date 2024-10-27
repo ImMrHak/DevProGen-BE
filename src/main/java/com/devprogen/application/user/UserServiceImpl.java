@@ -9,7 +9,6 @@ import com.devprogen.domain.user.projection.UserSignUpProjection;
 import com.devprogen.domain.user.service.UserDomainService;
 import com.devprogen.infrastructure.config.JWT.JwtUtil;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -57,6 +56,7 @@ public class UserServiceImpl implements UserService {
             return "Username or email already exists";
         }
 
+        // USE MAPPER IS BETTER
         User newUser = User.builder()
                 .firstName(userSignUpDTO.firstName())
                 .lastName(userSignUpDTO.lastName())
@@ -84,6 +84,7 @@ public class UserServiceImpl implements UserService {
             return null;
         }
 
+        // USE MAPPER IS BETTER
         User newUser = User.builder()
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())

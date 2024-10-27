@@ -6,6 +6,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
-public class LogServiceImpl {
+public class LogServiceImpl implements LogService {
     private final LogDomainService logDomainService;
 }
