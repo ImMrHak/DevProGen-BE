@@ -1,5 +1,7 @@
 package com.devprogen.infrastructure.config.JWT;
 
+import com.devprogen.domain.user.model.User;
+import com.devprogen.domain.user.service.UserDomainService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -62,5 +64,30 @@ public class JwtUtil {
 
     private boolean isTokenExpired(String token) {
         return extractAllClaims(token).getExpiration().before(new Date());
+    }
+
+    public boolean isTokenValid(String token, User userDetails){
+        final String username = extractUsername(token);
+        return (username != null && username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
+    public boolean isTokenCorrect(String token, UserDomainService userDomainService) {
+        try {
+            String username = extractUsername(token);
+
+            if (username == null) {
+                return false;
+            }
+
+            User user = userDomainService.findByUserName(username);
+            if (user == null) {
+                return false;
+            }
+
+            return isTokenValid(token, user);
+        } catch (Exception e) {
+            // Handle exceptions and ensure false is returned
+            return false;
+        }
     }
 }

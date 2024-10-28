@@ -1,0 +1,46 @@
+package com.generated.project.presentation;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import com.generated.project.services.{EntityName}ServiceImpl;
+import com.generated.project.dao.{EntityName};
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import lombok.Data;
+
+import java.util.List;
+import java.sql.Date;
+
+@RestController
+@RequestMapping("/api/{entityName}")
+@Data
+public class {EntityName}Controller {
+
+    private final {EntityName}ServiceImpl service;
+
+    @GetMapping("/getAll{EntityName}s")
+    public @ResponseBody ResponseEntity<?> getAll{EntityName}s() {
+        return ResponseEntity.ok().body(service.getAll{EntityName}s());
+    }
+
+    @GetMapping("/{EntityName}/{id}")
+    public @ResponseBody ResponseEntity<?> get{EntityName}ById(@PathVariable Long id) {
+        return ResponseEntity.ok().body(service.get{EntityName}ById(id));
+    }
+
+    @PostMapping("/create{EntityName}")
+    public @ResponseBody ResponseEntity<?> create{EntityName}(@RequestBody {EntityName} {entityName}) {
+        return ResponseEntity.ok().body(service.create{EntityName}({entityName}));
+    }
+
+    @PutMapping("/update{EntityName}/{id}")
+    public @ResponseBody ResponseEntity<?> update{EntityName}(@PathVariable Long id, @RequestBody {EntityName} {entityName}) {
+        return ResponseEntity.ok().body(service.update{EntityName}(id, {entityName}));
+    }
+
+    @DeleteMapping("/delete{EntityName}/{id}")
+    public @ResponseBody ResponseEntity<?> delete{EntityName}(@PathVariable Long id) {
+        return ResponseEntity.ok().body(service.delete{EntityName}(id));
+    }
+}

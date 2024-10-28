@@ -1,7 +1,9 @@
 package com.devprogen.application.user;
 
+import com.devprogen.application.user.mapper.UserMapper;
 import com.devprogen.application.user.record.request.UserSignInDTO;
 import com.devprogen.application.user.record.request.UserSignUpDTO;
+import com.devprogen.application.user.record.request.UserUpdateProfileDTO;
 import com.devprogen.domain.enumerations.AccountTypeEnum;
 import com.devprogen.domain.user.model.User;
 import com.devprogen.domain.user.projection.UserSignInProjection;
@@ -20,9 +22,15 @@ import java.util.Map;
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserDomainService userDomainService;
+    private final UserMapper userMapper;
     private final JwtUtil jwtUtils;
     private final PasswordEncoder passwordEncoder;
 
+
+    @Override
+    public Object userDataInfo(String userName) {
+        return userMapper.UserToUserInformationDTO(userDomainService.loadUserByUsername(userName));
+    }
 
     @Override
     public Object signInUser(UserSignInDTO userSignInDTO) {
@@ -115,5 +123,22 @@ public class UserServiceImpl implements UserService {
     @Override
     public User loadUserByUsername(String username) {
         return userDomainService.findByUserName(username);
+    }
+
+    @Override
+    public Object updateMyProfile(String userName, UserUpdateProfileDTO userUpdateProfileDTO) {
+        User dbUser = userDomainService.findByUserName(userName);
+
+        dbUser.setFirstName(userUpdateProfileDTO.firstName());
+        dbUser.setLastName(userUpdateProfileDTO.lastName());
+        dbUser.setEmail(userUpdateProfileDTO.email());
+
+        return userMapper.UserToUserInformationDTO(userDomainService.save(dbUser));
+    }
+
+    @Override
+    public Boolean isTokenCorrect(String token) {
+        if(token.isEmpty()) return false;
+        return jwtUtils.isTokenCorrect(token, userDomainService);
     }
 }

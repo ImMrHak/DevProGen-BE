@@ -1,0 +1,20 @@
+package com.generated.project.dao;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import com.generated.project.dao.*;
+
+import java.util.List;
+import java.sql.Date;
+
+@Entity @Data @AllArgsConstructor @NoArgsConstructor @ToString
+public class {EntityName} {inheritance} {
+
+    {idField}
+    {EntityFields}
+    {Relationships}
+}

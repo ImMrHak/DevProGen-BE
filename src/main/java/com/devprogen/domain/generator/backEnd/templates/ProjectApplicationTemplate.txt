@@ -1,0 +1,26 @@
+package com.generated.project;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.context.ApplicationContext;
+
+import com.generated.project.Utility.Utility;
+import com.generated.project.dao.Role;
+import com.generated.project.services.*;
+
+@SpringBootApplication(exclude = { SecurityAutoConfiguration.class })
+public class ProjectApplication {
+
+	public static void main(String[] args) {
+
+		ApplicationContext ac = SpringApplication.run(ProjectApplication.class, args);
+		RoleServiceImpl rSI = ac.getBean(RoleServiceImpl.class);
+		rSI.createRole(new Role(Utility.ROLE_USER, "ROLE_USER", null));
+		rSI.createRole(new Role(Utility.ROLE_ADMIN, "ROLE_ADMIN", null));
+
+		{EntityServiceImplementations}
+		{EntityDataToInsert}
+	}
+
+}

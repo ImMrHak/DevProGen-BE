@@ -3,15 +3,22 @@ package com.devprogen.adapter.web.UserActions;
 import com.devprogen.adapter.wrapper.ResponseWrapper;
 import com.devprogen.application.generator.GeneratorService;
 import com.devprogen.application.generator.record.request.GenerateProjectDTO;
+import com.devprogen.application.generator.record.response.GeneratedProjectDTO;
 import com.devprogen.application.project.ProjectService;
 import com.devprogen.application.project.record.request.ProjectUpdateNameDTO;
 import com.devprogen.application.user.UserService;
+import com.devprogen.application.user.record.request.UserUpdateProfileDTO;
 import lombok.AllArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileInputStream;
 import java.security.Principal;
 
 @RestController
@@ -27,7 +34,7 @@ public class UserController {
     public ResponseEntity<?> getUserInfo(Principal principal) {
         if (principal == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
 
-        return ResponseEntity.ok("Hello, " + principal.getName());
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(userService.userDataInfo(principal.getName())));
     }
 
     @GetMapping("/countMyProjects") @PreAuthorize("isAuthenticated() && hasAnyRole('ADMIN', 'USER')")
@@ -50,7 +57,7 @@ public class UserController {
     }
 
     @PutMapping("/updateMyProjectName") @PreAuthorize("isAuthenticated() && hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<?> getMyProjectDetails(Principal principal, @RequestBody ProjectUpdateNameDTO projectUpdateNameDTO){
+    public ResponseEntity<?> updateMyProjectDetails(Principal principal, @RequestBody ProjectUpdateNameDTO projectUpdateNameDTO){
         if (principal == null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
 
@@ -65,14 +72,34 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(projectService.deleteMyProject(principal.getName(), projectId)));
     }
 
-    // STOPPED HERE !!!!
-    @PostMapping("/generateMyProject") @PreAuthorize("isAuthenticated() && hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<?> generateMyProject(Principal principal, @RequestBody GenerateProjectDTO generateProjectDTO){
+    @PostMapping(value = "/generateMyProject", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) @PreAuthorize("isAuthenticated() && hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> generateMyProject(Principal principal, @RequestParam("file") MultipartFile file, @RequestParam("projectName") String projectName, @RequestParam("isBEOnly") Boolean isBEOnly) {
         if (principal == null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
 
-        return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(generatorService.generateProject(generateProjectDTO)));
+        Object data = generatorService.generateProject(principal.getName(), new GenerateProjectDTO(file, projectName, isBEOnly));
+        if(data instanceof String) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error((String) data));
+
+        return ResponseEntity.status(HttpStatus.OK).headers(((GeneratedProjectDTO)data).headers()).contentLength(((GeneratedProjectDTO)data).contentLength()).contentType(((GeneratedProjectDTO)data).mediaType()).body(((GeneratedProjectDTO)data).projectGenerated());
     }
 
+    @GetMapping("/downloadMyExistingProject") @PreAuthorize("isAuthenticated() && hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> downloadMyExistingProject(Principal principal, @RequestParam("projectId") Long projectId){
+        if (principal == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
 
+        Object data = generatorService.downloadExistingProject(principal.getName(), projectId);
+        if(data instanceof String)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error((String) data));
+
+        return ResponseEntity.status(HttpStatus.OK).headers(((GeneratedProjectDTO)data).headers()).contentLength(((GeneratedProjectDTO)data).contentLength()).contentType(((GeneratedProjectDTO)data).mediaType()).body(((GeneratedProjectDTO)data).projectGenerated());
+    }
+
+    @PutMapping("/updateMyProfile") @PreAuthorize("isAuthenticated() && hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> updateMyProfile(Principal principal, @RequestBody UserUpdateProfileDTO userUpdateProfileDTO){
+        if (principal == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(userService.updateMyProfile(principal.getName(), userUpdateProfileDTO)));
+    }
 }

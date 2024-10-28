@@ -1,0 +1,6 @@
+{EntityImports}
+
+export class {EntityName} {
+  id!: number;
+  {EntityFields}
+}

@@ -31,4 +31,9 @@ public class AuthController {
 
         return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(data));
     }
+
+    @GetMapping("/isTokenCorrect")
+    public ResponseEntity<?> isTokenCorrect(@RequestParam("token") String token) {
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(userService.isTokenCorrect(token)));
+    }
 }

@@ -1,0 +1,15 @@
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { {EntityName}Component } from './{entityName}.component';
+import { {EntityName}RoutingModule } from './{entityName}-routing.module';
+
+@NgModule({
+  declarations: [{EntityName}Component],
+  imports: [
+    CommonModule,
+    FormsModule,
+    {EntityName}RoutingModule
+  ]
+})
+export class {EntityName}Module { }

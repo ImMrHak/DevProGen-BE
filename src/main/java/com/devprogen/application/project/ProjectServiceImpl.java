@@ -26,7 +26,7 @@ public class ProjectServiceImpl implements ProjectService{
     }
 
     @Override
-    public Project findAllByUser_UserNameAndIsDeleted(String userName, Boolean deleted){
+    public List<Project> findAllByUser_UserNameAndIsDeleted(String userName, Boolean deleted){
         return projectDomainService.findAllByUser_UserNameAndIsDeleted(userName, deleted);
     }
 
@@ -36,12 +36,17 @@ public class ProjectServiceImpl implements ProjectService{
     }
 
     @Override
+    public Project searchMyProjectById(Long projectId) {
+        return projectDomainService.findById(projectId);
+    }
+
+    @Override
     public String updateMyProjectName(ProjectUpdateNameDTO project, String userName) {
         Project dbProject = projectDomainService.findById(project.idProject());
 
         if(dbProject == null) return "Project not found.";
 
-        if(!dbProject.getUser().getUsername().equals(userName) || !userDomainService.loadUserByUsername(userName).isAdmin()) return "Unauthorized access.";
+        if(!dbProject.getUser().getUsername().equals(userName) && !userDomainService.loadUserByUsername(userName).isAdmin()) return "Unauthorized access.";
 
         dbProject.setName(project.name());
 
@@ -55,7 +60,7 @@ public class ProjectServiceImpl implements ProjectService{
 
         if(dbProject == null) return "Project not found.";
 
-        if(!dbProject.getUser().getUsername().equals(userName) || !userDomainService.loadUserByUsername(userName).isAdmin()) return "Unauthorized access.";
+        if(!dbProject.getUser().getUsername().equals(userName) && !userDomainService.loadUserByUsername(userName).isAdmin()) return "Unauthorized access.";
 
         dbProject.setDeleted(true);
 

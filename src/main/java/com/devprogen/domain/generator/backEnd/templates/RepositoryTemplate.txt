@@ -1,0 +1,7 @@
+package com.generated.project.services;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import com.generated.project.dao.{EntityName};
+
+public interface {EntityName}Repository extends JpaRepository<{EntityName}, Long> {
+}

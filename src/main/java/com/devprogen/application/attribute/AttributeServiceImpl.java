@@ -11,7 +11,7 @@ public class AttributeServiceImpl implements AttributeService {
     private final AttributeDomainService attributeDomainService;
 
     @Override
-    public Attribute createAttribute(Attribute attribute) {
+    public Attribute createMyAttribute(Attribute attribute) {
         return attributeDomainService.save(attribute);
     }
 }

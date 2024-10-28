@@ -1,0 +1,39 @@
+package com.generated.project.services;
+
+import com.generated.project.dao.{EntityName};
+import java.util.List;
+import java.sql.Date;
+
+import lombok.Data;
+import org.springframework.stereotype.Service;
+
+@Service
+@Data
+public class {EntityName}ServiceImpl  {
+    private final {EntityName}Repository repository;
+
+    public List<{EntityName}> getAll{EntityName}s() {
+        return repository.findAll();
+    }
+
+    public {EntityName} get{EntityName}ById(Long id) {
+        return repository.findById(id).orElse(null);
+    }
+
+    public {EntityName} create{EntityName}({EntityName} {entityName}) {
+        return repository.save({entityName});
+    }
+
+    public {EntityName} update{EntityName}(Long id, {EntityName} {entityName}) {
+        if (repository.existsById(id)) {
+            {setIdMethod}
+            return repository.save({entityName});
+        }
+        return null;
+    }
+
+    public boolean delete{EntityName}(Long id) {
+        repository.deleteById(id);
+        return true;
+    }
+}

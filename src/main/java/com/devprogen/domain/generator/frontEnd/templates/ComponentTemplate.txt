@@ -1,0 +1,60 @@
+import { Component, OnInit } from '@angular/core';
+import { {EntityName}Service } from '../services/{entityName}.service';
+import { {EntityName} } from '../models/{entityName}.model';
+
+@Component({
+  selector: 'app-{entityName}',
+  templateUrl: './{entityName}.component.html',
+  styleUrls: ['./{entityName}.component.css']
+})
+export class {EntityName}Component implements OnInit {
+  {entityName}s: {EntityName}[] = [];
+  selected{EntityName}: {EntityName} = new {EntityName}();
+  showModal: boolean = false;
+
+  constructor(private {entityName}Service: {EntityName}Service) {}
+
+  ngOnInit(): void {
+    this.get{EntityName}s();
+  }
+
+  get{EntityName}s(): void {
+    this.{entityName}Service.get{EntityName}s().subscribe(({entityName}s: {EntityName}[]) => {
+      this.{entityName}s = {entityName}s;
+    });
+  }
+
+  add{EntityName}(): void {
+    this.{entityName}Service.add{EntityName}(this.selected{EntityName}).subscribe((new{EntityName}: {EntityName}) => {
+      this.{entityName}s.push(new{EntityName});
+      this.selected{EntityName} = new {EntityName}();
+    });
+  }
+
+  update{EntityName}(): void {
+    this.{entityName}Service.update{EntityName}(this.selected{EntityName}).subscribe(() => {
+      this.selected{EntityName} = new {EntityName}();
+      this.get{EntityName}s();
+      this.closeModal();
+    });
+  }
+
+  delete{EntityName}({entityName}: {EntityName}): void {
+    this.{entityName}Service.delete{EntityName}({entityName}.id).subscribe(() => {
+      this.{entityName}s = this.{entityName}s.filter(h => h !== {entityName});
+    });
+  }
+
+  select{EntityName}({entityName}: {EntityName}): void {
+    this.selected{EntityName} = {entityName};
+    this.openModal();
+  }
+
+  openModal(): void {
+    this.showModal = true;
+  }
+
+  closeModal(): void {
+    this.showModal = false;
+  }
+}

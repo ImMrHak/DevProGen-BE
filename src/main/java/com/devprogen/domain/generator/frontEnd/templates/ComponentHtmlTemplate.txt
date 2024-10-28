@@ -1,0 +1,45 @@
+<div class="container">
+  <h2 class="title">{EntityName} List</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        {EntityTableHeaders}
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let {entityName} of {entityName}s" (click)="select{EntityName}({entityName})">
+        <td>{{ {entityName}.id }}</td>
+        {EntityTableFields}
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal for editing -->
+<div *ngIf="showModal" class="modal">
+  <div class="modal-content">
+    <span class="close" (click)="closeModal()">&times;</span>
+    <h2 class="modal-title">Edit {EntityName}</h2>
+    <form (ngSubmit)="update{EntityName}()">
+      <div class="form-group">
+        <label>ID</label>
+        <input [(ngModel)]="selected{EntityName}.id" name="id" readonly />
+      </div>
+      {EntityFormFields}
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">Update</button>
+        <button type="button" class="btn-danger" (click)="delete{EntityName}(selected{EntityName})">Delete</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Form for adding a new entity -->
+<div class="form-container">
+  <h2 class="title">Add New {EntityName}</h2>
+  <form (ngSubmit)="add{EntityName}()">
+    {EntityFormFields}
+    <button type="submit" class="btn-primary">Add</button>
+  </form>
+</div>
