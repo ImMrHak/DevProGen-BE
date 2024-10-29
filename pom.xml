@@ -124,6 +124,13 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- System Metrics Information -->
+        <dependency>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>6.0.0</version>
+        </dependency>
+
         <!-- Auto Mapper -->
         <dependency>
             <groupId>org.modelmapper</groupId>

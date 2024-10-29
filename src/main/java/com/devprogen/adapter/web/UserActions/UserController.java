@@ -7,22 +7,19 @@ import com.devprogen.application.generator.record.response.GeneratedProjectDTO;
 import com.devprogen.application.log.LogService;
 import com.devprogen.application.project.ProjectService;
 import com.devprogen.application.project.record.request.ProjectUpdateNameDTO;
+import com.devprogen.application.system.SystemService;
 import com.devprogen.application.user.UserService;
 import com.devprogen.application.user.record.request.ContactSelectUser;
 import com.devprogen.application.user.record.request.UserUpdateProfileDTO;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.FileInputStream;
 import java.security.Principal;
 
 @RestController
@@ -33,6 +30,7 @@ public class UserController {
     private final ProjectService projectService;
     private final GeneratorService generatorService;
     private final LogService logService;
+    private final SystemService systemService;
 
     @GetMapping("/userInfo") @PreAuthorize("isAuthenticated() && hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getUserInfo(Principal principal) {
@@ -205,5 +203,18 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
 
         return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(userService.deleteSelectedUser(userId)));
+    }
+
+    // I NEED TO ADD METRICS !!
+    @GetMapping("/systemMetrics")
+    public ResponseEntity<?> getSystemMetrics(Principal principal){
+        if (principal == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
+
+        Object data = systemService.systemInformation();
+
+        if(data instanceof String) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error((String) data));
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(data));
     }
 }
