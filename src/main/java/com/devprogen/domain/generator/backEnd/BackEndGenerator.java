@@ -13,6 +13,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
 import java.nio.file.*;
+import java.sql.Date;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -49,6 +50,7 @@ public class BackEndGenerator {
             baseDir = GENERATED_DIR + "\\" + "Project_BackEnd_" + Utility.generateRandomAlphanumeric(10);
         }
 
+        generatedProject.setCreationDate(new Date(System.currentTimeMillis()));
 
     }
 
