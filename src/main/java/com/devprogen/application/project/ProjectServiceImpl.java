@@ -3,7 +3,6 @@ package com.devprogen.application.project;
 import com.devprogen.application.project.record.request.ProjectUpdateNameDTO;
 import com.devprogen.domain.project.model.Project;
 import com.devprogen.domain.project.service.ProjectDomainService;
-import com.devprogen.domain.user.model.User;
 import com.devprogen.domain.user.service.UserDomainService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
