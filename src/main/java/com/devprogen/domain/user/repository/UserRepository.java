@@ -5,6 +5,8 @@ import com.devprogen.domain.user.projection.UserSignInProjection;
 import com.devprogen.domain.user.projection.UserSignUpProjection;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+
 public interface UserRepository {
     User findByUserName(String username);
 
@@ -21,4 +23,10 @@ public interface UserRepository {
     UserSignUpProjection findByUserNameOrEmailToSignUp(String userName, String email);
 
     Boolean existsByUserNameOrEmail(String userName, String email);
+
+    Long countAllByIsAdmin(Boolean admin);
+
+    List<User> findAllByIsDeleted(Boolean deleted);
+
+    User findByEmail(String email);
 }

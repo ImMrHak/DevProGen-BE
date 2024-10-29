@@ -4,10 +4,14 @@ import com.devprogen.adapter.wrapper.ResponseWrapper;
 import com.devprogen.application.generator.GeneratorService;
 import com.devprogen.application.generator.record.request.GenerateProjectDTO;
 import com.devprogen.application.generator.record.response.GeneratedProjectDTO;
+import com.devprogen.application.log.LogService;
 import com.devprogen.application.project.ProjectService;
 import com.devprogen.application.project.record.request.ProjectUpdateNameDTO;
 import com.devprogen.application.user.UserService;
+import com.devprogen.application.user.record.request.ContactSelectUser;
 import com.devprogen.application.user.record.request.UserUpdateProfileDTO;
+import jakarta.mail.MessagingException;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -28,7 +32,7 @@ public class UserController {
     private final UserService userService;
     private final ProjectService projectService;
     private final GeneratorService generatorService;
-    //private final LogService logService;
+    private final LogService logService;
 
     @GetMapping("/userInfo") @PreAuthorize("isAuthenticated() && hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getUserInfo(Principal principal) {
@@ -41,6 +45,9 @@ public class UserController {
     public ResponseEntity<?> getCountTotalMyProjects(Principal principal) {
         if (principal == null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
+
+        if(userService.loadUserByUsername(principal.getName()).isAdmin())
+            return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(projectService.findAllProjects().stream().filter(p -> !p.isDeleted()).toList().size()));
 
         return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(projectService.countByUser_UserNameAndIsDeleted(principal.getName(), false)));
     }
@@ -96,10 +103,107 @@ public class UserController {
     }
 
     @PutMapping("/updateMyProfile") @PreAuthorize("isAuthenticated() && hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<?> updateMyProfile(Principal principal, @RequestBody UserUpdateProfileDTO userUpdateProfileDTO){
+    public ResponseEntity<?> updateMyProfile(Principal principal, @Valid @RequestBody UserUpdateProfileDTO userUpdateProfileDTO){
         if (principal == null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
 
         return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(userService.updateMyProfile(principal.getName(), userUpdateProfileDTO)));
+    }
+
+    // ADMIN ONLY END POINTS \\
+    @GetMapping("/countOwnProjects") @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
+    public ResponseEntity<?> countOwnProjects(Principal principal){
+        if (principal == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(projectService.findAllProjects().size()));
+    }
+
+    @GetMapping("/countUsers") @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
+    public ResponseEntity<?> countUsers(Principal principal) {
+        if (principal == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(userService.countAllByAdmin()));
+    }
+
+    @GetMapping("/listUsers") @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
+    public ResponseEntity<?> getListUsers(Principal principal){
+        if (principal == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(userService.searchAllUsers()));
+    }
+
+    @GetMapping("/countLogs") @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
+    public ResponseEntity<?> getCountTotalLogs(Principal principal){
+        if (principal == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(logService.countAllLog()));
+    }
+
+    @GetMapping("/listLogs") @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
+    public ResponseEntity<?> getListLogs(Principal principal){
+        if (principal == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(logService.searchAllLog()));
+    }
+
+    @GetMapping("/deletedProjects") @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
+    public ResponseEntity<?> getDeletedProjects(Principal principal){
+        if (principal == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(projectService.findAllByIsDeleted(true)));
+    }
+
+    @GetMapping("/deletedUsers") @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
+    public ResponseEntity<?> getDeletedUsers(Principal principal){
+        if (principal == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(userService.findAllByIsDeleted(true)));
+    }
+
+    @PutMapping("/recoverUser") @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
+    public ResponseEntity<?> recoverUser(Principal principal, @RequestParam("userId") Long userId){
+        if (principal == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(userService.recoverDeletedUser(userId)));
+    }
+
+    @PutMapping("/recoverProject") @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
+    public ResponseEntity<?> recoverProject(Principal principal, @RequestParam("projectId") Long projectId){
+        if (principal == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(projectService.recoverDeletedProject(projectId)));
+    }
+
+    @PutMapping("/resetUserPassword") @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
+    public ResponseEntity<?> resetUserPassword(Principal principal, @RequestParam("userId") Long userId) throws MessagingException {
+        if (principal == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(userService.resetSelectedUserPassword(userId)));
+    }
+
+    @PostMapping("/sendEmailToUser") @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
+    public ResponseEntity<?> sendEmailToUser(Principal principal, @Valid @RequestBody ContactSelectUser contactSelectUser) throws MessagingException {
+        if (principal == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(userService.contactSelectUser(principal.getName(), contactSelectUser)));
+    }
+
+    @DeleteMapping("/deleteUser") @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
+    public ResponseEntity<?> deleteSelectedUser(Principal principal, @RequestParam("userId") Long userId) {
+        if (principal == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(userService.deleteSelectedUser(userId)));
     }
 }

@@ -3,6 +3,7 @@ package com.devprogen.domain.user.service;
 import com.devprogen.domain.user.model.User;
 import com.devprogen.domain.user.projection.UserSignInProjection;
 import com.devprogen.domain.user.projection.UserSignUpProjection;
+import com.devprogen.domain.user.repository.UserRepository;
 import com.devprogen.infrastructure.persistence.JpaUserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,7 +13,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class UserDomainService implements UserDetailsService {
+public class UserDomainService implements UserRepository, UserDetailsService {
     private final JpaUserRepository jpaUserRepository;
 
     // Fetch all attributes
@@ -59,5 +60,19 @@ public class UserDomainService implements UserDetailsService {
 
     public Boolean existsByUserNameOrEmail(String userName, String email){
         return jpaUserRepository.existsByUserNameOrEmail(userName, email);
+    }
+
+    public Long countAllByIsAdmin(Boolean admin) {
+        return jpaUserRepository.countAllByIsAdmin(admin);
+    }
+
+    @Override
+    public List<User> findAllByIsDeleted(Boolean deleted) {
+        return jpaUserRepository.findAllByIsDeleted(deleted);
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        return jpaUserRepository.findByEmail(email);
     }
 }

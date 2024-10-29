@@ -1,6 +1,7 @@
 package com.devprogen.domain.log.service;
 
 import com.devprogen.domain.log.model.Log;
+import com.devprogen.domain.log.repository.LogRepository;
 import com.devprogen.infrastructure.persistence.JpaLogRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -9,7 +10,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class LogDomainService {
+public class LogDomainService implements LogRepository {
     private final JpaLogRepository jpaLogRepository;
 
     // Fetch all attributes
@@ -32,5 +33,4 @@ public class LogDomainService {
     public void delete(Long id) {
         jpaLogRepository.deleteById(id);
     }
-
 }

@@ -13,4 +13,6 @@ public interface ProjectService {
     Project searchMyProjectById(Long projectId);
     String updateMyProjectName(ProjectUpdateNameDTO project, String userName);
     String deleteMyProject(String userName, Long idProject);
+    List<Project> findAllByIsDeleted(Boolean deleted);
+    String recoverDeletedProject(Long idProject);
 }

@@ -3,6 +3,7 @@ package com.devprogen.application.project;
 import com.devprogen.application.project.record.request.ProjectUpdateNameDTO;
 import com.devprogen.domain.project.model.Project;
 import com.devprogen.domain.project.service.ProjectDomainService;
+import com.devprogen.domain.user.model.User;
 import com.devprogen.domain.user.service.UserDomainService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -66,5 +67,20 @@ public class ProjectServiceImpl implements ProjectService{
 
         projectDomainService.save(dbProject);
         return "Project deleted successfully.";
+    }
+
+    @Override
+    public List<Project> findAllByIsDeleted(Boolean deleted) {
+        return projectDomainService.findAllByIsDeleted(deleted);
+    }
+
+    @Override
+    public String recoverDeletedProject(Long idProject) {
+        Project projectDbToRecover = projectDomainService.findById(idProject);
+        if(!projectDbToRecover.isDeleted()) return "Project is already active";
+        projectDbToRecover.setDeleted(false);
+
+        projectDomainService.save(projectDbToRecover);
+        return "Project successfully recovered";
     }
 }

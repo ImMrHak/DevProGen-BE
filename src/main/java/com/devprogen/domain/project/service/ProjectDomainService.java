@@ -1,6 +1,7 @@
 package com.devprogen.domain.project.service;
 
 import com.devprogen.domain.project.model.Project;
+import com.devprogen.domain.project.repository.ProjectRepository;
 import com.devprogen.infrastructure.persistence.JpaProjectRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -9,7 +10,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class ProjectDomainService {
+public class ProjectDomainService implements ProjectRepository {
     private final JpaProjectRepository jpaProjectRepository;
 
     // Fetch all attributes
@@ -39,5 +40,10 @@ public class ProjectDomainService {
 
     public List<Project> findAllByUser_UserNameAndIsDeleted(String userName, boolean deleted){
         return jpaProjectRepository.findAllByUser_UserNameAndIsDeleted(userName, deleted);
+    }
+
+    @Override
+    public List<Project> findAllByIsDeleted(Boolean deleted) {
+        return jpaProjectRepository.findAllByIsDeleted(deleted);
     }
 }
