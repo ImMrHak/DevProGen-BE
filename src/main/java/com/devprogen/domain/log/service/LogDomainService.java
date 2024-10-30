@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class LogDomainService implements LogRepository {
+public class LogDomainService {
     private final JpaLogRepository jpaLogRepository;
 
     // Fetch all attributes

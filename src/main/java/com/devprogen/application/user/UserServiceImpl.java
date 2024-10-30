@@ -186,6 +186,8 @@ public class UserServiceImpl implements UserService {
 
         userDbToResetPassword.setPassword(passwordEncoder.encode(rawPassword));
 
+        userDomainService.save(userDbToResetPassword);
+
         String resetPasswordMessage = buildResetPasswordEmailHTML(userDbToResetPassword, rawPassword);
 
         utility.sendEmail(userDbToResetPassword.getEmail(), "Reset Password Request", resetPasswordMessage, true);

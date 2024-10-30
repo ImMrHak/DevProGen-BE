@@ -13,7 +13,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class UserDomainService implements UserRepository, UserDetailsService {
+public class UserDomainService implements UserDetailsService {
     private final JpaUserRepository jpaUserRepository;
 
     // Fetch all attributes
@@ -66,12 +66,10 @@ public class UserDomainService implements UserRepository, UserDetailsService {
         return jpaUserRepository.countAllByIsAdmin(admin);
     }
 
-    @Override
     public List<User> findAllByIsDeleted(Boolean deleted) {
         return jpaUserRepository.findAllByIsDeleted(deleted);
     }
 
-    @Override
     public User findByEmail(String email) {
         return jpaUserRepository.findByEmail(email);
     }

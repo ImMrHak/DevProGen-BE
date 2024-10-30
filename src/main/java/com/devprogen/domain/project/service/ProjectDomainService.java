@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class ProjectDomainService implements ProjectRepository {
+public class ProjectDomainService {
     private final JpaProjectRepository jpaProjectRepository;
 
     // Fetch all attributes
@@ -42,7 +42,6 @@ public class ProjectDomainService implements ProjectRepository {
         return jpaProjectRepository.findAllByUser_UserNameAndIsDeleted(userName, deleted);
     }
 
-    @Override
     public List<Project> findAllByIsDeleted(Boolean deleted) {
         return jpaProjectRepository.findAllByIsDeleted(deleted);
     }

@@ -32,6 +32,7 @@ public class UserController {
     private final LogService logService;
     private final SystemService systemService;
 
+    // ADMIN AND USER END POINTS \\
     @GetMapping("/userInfo") @PreAuthorize("isAuthenticated() && hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getUserInfo(Principal principal) {
         if (principal == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
@@ -205,8 +206,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(ResponseWrapper.success(userService.deleteSelectedUser(userId)));
     }
 
-    // I NEED TO ADD METRICS !!
-    @GetMapping("/systemMetrics")
+    @GetMapping("/systemMetrics") @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
     public ResponseEntity<?> getSystemMetrics(Principal principal){
         if (principal == null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.error("User is not authenticated"));
